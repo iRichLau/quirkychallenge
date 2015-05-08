@@ -16,23 +16,21 @@ class Board
     letters = letters.scan(/..../).map {|str| str.split ""}
 
     self.grid = letters.map do |row|
-      row.map {|letter| Letter.new(letter)}
+      row.map { |letter| Letter.new(letter) }
     end
   end
 
   def set_neighbors
     grid.each_with_index do |row, row_index|
       row.each_with_index do |letter, col_index|
-        (-1..1).each do |row_offset|
-          r = row_index + row_offset
-          next unless (0...grid.size) === r
-          (-1..1).each do |col_offset|
-            next if row_offset == 0 && col_offset == 0
-            c = col_index + col_offset
-            next unless (0...grid.size) === c
-            letter.neighbors << grid[r][c]
-          end
-        end
+        letter.neighbors << grid[row_index - 1][col_index - 1] unless row_index == 0 || col_index == 0 # up left
+        letter.neighbors << grid[row_index - 1][col_index]   unless row_index == 0 # up
+        letter.neighbors << grid[row_index - 1][col_index + 1] unless row_index == 0 || col_index == grid.first.size - 1 # up right
+        letter.neighbors << grid[row_index][col_index + 1]   unless col_index == grid.first.size - 1 # right
+        letter.neighbors << grid[row_index + 1][col_index + 1] unless row_index == grid.size - 1 || col_index == grid.first.size - 1 # down right
+        letter.neighbors << grid[row_index + 1][col_index]   unless row_index == grid.size - 1 # down
+        letter.neighbors << grid[row_index + 1][col_index - 1] unless row_index == grid.size - 1 || col_index == 0 # down left
+        letter.neighbors << grid[row_index][col_index - 1]   unless col_index == 0 # left
       end
     end
   end
@@ -77,9 +75,9 @@ class Solver
     letter.used = true
     word << letter.name
 
-      if dictionary.is_a_word?(word)
-        results << word unless (word.size < MINIMUM_WORD_LENGTH)
-      end
+    if dictionary.is_a_word?(word)
+      results << word unless (word.size < MINIMUM_WORD_LENGTH)
+    end
 
     if (word.size >= MAXIMUM_WORD_LENGTH)
       letter.used = false
