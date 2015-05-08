@@ -2,7 +2,7 @@ require 'set'
 require 'benchmark'
 
 class Board
-  attr_reader :grid
+  attr_accessor :grid
 
   def initialize(*letters)
     set_grid(letters)
@@ -15,7 +15,7 @@ class Board
     letters = letters * ""
     letters = letters.scan(/..../).map {|str| str.split ""}
 
-    @grid = letters.map do |row|
+    self.grid = letters.map do |row|
       row.map {|letter| Letter.new(letter)}
     end
   end
@@ -78,10 +78,10 @@ class Solver
     word << letter.name
 
       if dictionary.is_a_word?(word)
-        results << word unless word.size < MINIMUM_WORD_LENGTH
+        results << word unless (word.size < MINIMUM_WORD_LENGTH)
       end
 
-    if word.size >= MAXIMUM_WORD_LENGTH
+    if (word.size >= MAXIMUM_WORD_LENGTH)
       letter.used = false
       return
     end
@@ -95,13 +95,13 @@ class Solver
 end
 
 class Dictionary
-  attr_reader :words
+  attr_accessor :words
 
   def initialize(file)
-    @words = Set.new
-    f = File.open(file)
-    f.each_line { |line| @words << line.downcase.chomp unless (line.length < 3 || line.length > 16) }
-    f.close
+    self.words = Set.new
+    File.open(file, "r") do |file_handle|
+      file_handle.each_line { |line| self.words << line.downcase.chomp unless (line.length < 3 || line.length > 16) }
+    end
   end
 
   def is_a_word?(word)
@@ -111,8 +111,4 @@ end
 
 solver = Solver.new(Board.new("b", "g", "e", "f","i", "h", "c", "o", "n", "a", "t", "m", "y", "p", "p", "u"), Dictionary.new('words.txt'))
 
-
-Benchmark.bmbm do |x|
-  x.report("Finished:") { solver.search_board }
-end
-
+puts Benchmark.measure { solver.search_board }

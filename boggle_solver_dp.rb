@@ -7,7 +7,7 @@ require 'set'
 require 'benchmark'
 
 class Board
-  attr_reader :grid
+  attr_accessor :grid
 
   def initialize(*letters)
     set_grid(letters)
@@ -19,7 +19,7 @@ class Board
   def set_grid(letters)
     letters = letters.each_slice(4).to_a
 
-    @grid = letters.map do |row|
+    self.grid = letters.map do |row|
       row.map { |letter| Letter.new(letter) }
     end
   end
@@ -94,13 +94,13 @@ class Solver
 end
 
 class Dictionary
-  attr_reader :words
+  attr_accessor :words
 
   def initialize(dictionary)
-    @words = Set.new
-    f = File.open(dictionary)
-    f.each_line { |line| @words << line.downcase.chomp unless (line.length < 4 || line.length > 16) } #hardcoded max word length
-    f.close
+    self.words = Set.new
+    File.open(dictionary, "r") do |file_handle|
+      file_handle.each_line { |line| self.words << line.downcase.chomp unless (line.length < 4 || line.length > 16) } #hardcoded max word length
+    end
   end
 end
 
